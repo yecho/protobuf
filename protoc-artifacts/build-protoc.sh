@@ -101,7 +101,9 @@ checkArch ()
       assertEq $format "i386" $LINENO
     elif [[ "$ARCH" == x86_64 ]]; then
       assertEq $format "x86_64" $LINENO
-    else
+    elif [[ "$ARCH" == aarch_64 ]]; then
+      assertEq $format "arm64" $LINENO
+     else
       fail "Unsupported arch: $ARCH"
     fi
   else
@@ -130,7 +132,7 @@ checkDependencies ()
     fi
   elif [[ "$OS" == osx ]]; then
     dump_cmd='otool -L '"$1"' | fgrep dylib'
-    white_list="libz\.1\.dylib\|libstdc++\.6\.dylib\|libSystem\.B\.dylib"
+    white_list="libz\.1\.dylib\|libc++\.1\.dylib\|libSystem\.B\.dylib"
   fi
   if [[ -z "$white_list" || -z "$dump_cmd" ]]; then
     fail "Unsupported platform $OS-$ARCH."
@@ -212,11 +214,13 @@ elif [[ "$(uname)" == Linux* ]]; then
 elif [[ "$(uname)" == Darwin* ]]; then
   assertEq "$OS" osx $LINENO
   # Make the binary compatible with OSX 10.7 and later
-  CXXFLAGS="$CXXFLAGS -mmacosx-version-min=10.7"
+  CXXFLAGS="$CXXFLAGS -mmacosx-version-min=13.6"
   if [[ "$ARCH" == x86_64 ]]; then
     CXXFLAGS="$CXXFLAGS -m64"
   elif [[ "$ARCH" == x86_32 ]]; then
     CXXFLAGS="$CXXFLAGS -m32"
+  elif [[ "$ARCH" == aarch_64 ]]; then
+    CXXFLAGS="$CXXFLAGS -m64"
   else
     fail "Unsupported arch: $ARCH"
   fi
